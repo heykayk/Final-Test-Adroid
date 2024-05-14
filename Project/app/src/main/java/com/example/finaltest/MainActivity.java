@@ -3,6 +3,7 @@ package com.example.finaltest;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -15,8 +16,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Intent intent=getIntent();
-        User user =(User) intent.getSerializableExtra("user");
-        Toast.makeText(this, user.getFullname(), Toast.LENGTH_SHORT).show();
+        SharedPreferences sharedPreferences = getSharedPreferences("user", MODE_PRIVATE);
+
     }
 }

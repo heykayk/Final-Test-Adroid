@@ -3,6 +3,7 @@ package com.example.finaltest;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.finaltest.dal.Database;
+import com.example.finaltest.model.Target;
 import com.example.finaltest.model.User;
 
 public class RegistationActivity extends AppCompatActivity {
@@ -68,9 +70,19 @@ public class RegistationActivity extends AppCompatActivity {
             return;
         }
 
-        Intent intent=new Intent(RegistationActivity.this, MainActivity.class);
-        intent.putExtra("user", user);
-        startActivity(intent);
+        SharedPreferences sharedPreferences = getSharedPreferences("user", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("userId", user.getId());
+        editor.putString("fullName", user.getFullname());
+        editor.apply();
+
+        Target target = db.existsTarget(user.getId());
+        if(target == null){
+            startActivity(new Intent(RegistationActivity.this, TargetActivity.class));
+        } else {
+            Intent intent=new Intent(RegistationActivity.this, MainActivity.class);
+            startActivity(intent);
+        }
     }
 
 }

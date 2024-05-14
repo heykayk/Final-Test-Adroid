@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">FinalTest</string>
+
+    <string-array name="chi_so_r">
+        <item>Người ít vận động</item>
+        <item>Người vận động nhẹ</item>
+        <item>Người vận động vừa(tập luyện 3 – 5 lần/tuần)</item>
+        <item>Người vận động nặng(tập luyện 6 – 7 lần/tuần)</item>
+        <item>Người vận động rất nặng(2 lần/ngày)</item>
+    </string-array>
+
+    <string-array name="gioi_tinh">
+        <item>Nam</item>
+        <item>Nữ</item>
+    </string-array>
 </resources>

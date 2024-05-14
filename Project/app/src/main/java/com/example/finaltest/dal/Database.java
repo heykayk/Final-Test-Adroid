@@ -8,13 +8,14 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import androidx.annotation.Nullable;
 
+import com.example.finaltest.model.Target;
 import com.example.finaltest.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Database extends SQLiteOpenHelper {
-    private static final String DATABASE_NAME="DailyFood.db";
+    private static final String DATABASE_NAME="finalTest.db";
     private static int DATABASE_VERSION = 1;
     public Database(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -35,9 +36,9 @@ public class Database extends SQLiteOpenHelper {
                 "  id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "  name TEXT," +
                 "  calories TEXT," +
-                "  protein INTEGER," +
-                "  carbs INTEGER," +
-                "  fat INTEGER" +
+                "  protein TEXT," +
+                "  carbs TEXT," +
+                "  fat TEXT" +
                 ");";
         db.execSQL(foodTbl);
 
@@ -51,6 +52,20 @@ public class Database extends SQLiteOpenHelper {
                 "  FOREIGN KEY (foodId) REFERENCES foods(id)" +
                 ");";
         db.execSQL(foodDaliTbl);
+
+        String targetTbl = "CREATE TABLE IF NOT EXISTS Targets(" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "userId INTEGER," +
+                "height TEXT, " +
+                "weight TEXT, " +
+                "weightTarget TEXT," +
+                "age TEXT," +
+                "r TEXT," +
+                "sex TEXT," +
+                "date TEXT," +
+                "FOREIGN KEY (userId) REFERENCES users(id));";
+
+        db.execSQL(targetTbl);
     }
 
     @Override
@@ -80,7 +95,6 @@ public class Database extends SQLiteOpenHelper {
             return existingUser;
         }
         return null;
-//        return existingUser;
     }
 
     public User existUserByUsername(String username){
@@ -99,4 +113,32 @@ public class Database extends SQLiteOpenHelper {
         }
         return user;
     }
+
+    // thao tác với bảng targets
+    public Target existsTarget(int userId){
+        Target latestTarget = null;
+        String whereClause = "userId = ?";
+        String[] whereArgs = {String.valueOf(userId)};
+        SQLiteDatabase st = getReadableDatabase();
+        Cursor rs = st.query("Targets", null, whereClause, whereArgs,
+                null, null, "date DESC", "1");
+
+        while (st != null && rs.moveToNext()){
+            int id = rs.getInt(0);
+            double height = Double.parseDouble(rs.getString(2).trim());
+            double weight = Double.parseDouble(rs.getString(3).trim());
+            double weightTarget = Double.parseDouble(rs.getString(4).trim());
+            int age = Integer.parseInt(rs.getString(5).trim());
+            double r = Double.parseDouble(rs.getString(6).trim());
+            int sex = Integer.parseInt(rs.getString(7));
+            String date = rs.getString(8);
+
+            latestTarget = new Target(id, userId, height, weight, weightTarget, age, r, sex, date);
+        }
+        return latestTarget;
+    }
+
+
+    // thao tác với bảng foods
+//    public
 }
