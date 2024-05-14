@@ -15,7 +15,6 @@
         android:text="Sign up"
         android:textSize="40sp"
         android:textStyle="bold"
-        android:onClick="singin"
         android:textColor="@color/black"
         app:layout_constraintVertical_bias="0.2"
         app:layout_constraintEnd_toEndOf="parent"
@@ -40,11 +39,12 @@
         app:layout_constraintStart_toStartOf="parent"/>
 
     <EditText
-        android:id="@+id/txtEmail"
+        android:id="@+id/txtPassword"
         android:background="@drawable/edit_text_bg"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Email"
+        android:hint="Password"
+        android:inputType="textPassword"
         android:layout_marginTop="8dp"
         android:padding="15dp"
         app:layout_constraintWidth_percent=".8"
@@ -52,32 +52,31 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:drawablePadding="10dp"
         android:elevation="3dp"
-        android:drawableLeft="@drawable/ic_basline_account_circle"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <EditText
-        android:id="@+id/txtPassword"
-        android:background="@drawable/edit_text_bg"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Password"
-        android:layout_marginTop="8dp"
-        android:padding="15dp"
-        app:layout_constraintWidth_percent=".8"
-        app:layout_constraintTop_toBottomOf="@id/txtEmail"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:drawablePadding="10dp"
-        android:elevation="3dp"
         android:drawableLeft="@drawable/ic_baseline_vpn_key"
         app:layout_constraintStart_toStartOf="parent"/>
 
+    <EditText
+        android:id="@+id/txtFullName"
+        android:background="@drawable/edit_text_bg"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Fullname"
+        android:layout_marginTop="8dp"
+        android:padding="15dp"
+        app:layout_constraintWidth_percent=".8"
+        app:layout_constraintTop_toBottomOf="@id/txtPassword"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:drawablePadding="10dp"
+        android:elevation="3dp"
+        android:drawableLeft="@drawable/ic_basline_account_circle"
+        app:layout_constraintStart_toStartOf="parent"/>
     <Button
         android:id="@+id/btnSingUp"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="76dp"
-        android:onClick="singup"
-        android:text="Sing up"
+        android:onClick="signup"
+        android:text="Sign up"
         android:textAllCaps="false"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -100,6 +99,7 @@
         app:layout_constraintVertical_bias=".2" />
 
     <TextView
+        android:id="@+id/txtSingin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Sign in"
