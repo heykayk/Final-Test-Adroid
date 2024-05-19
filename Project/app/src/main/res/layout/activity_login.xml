@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/img"
-    tools:context=".RegistationActivity">
+    tools:context=".LoginActivity">
 
     <TextView
         android:id="@+id/textView"
@@ -75,7 +75,7 @@
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Bạn đã có tài khoản?"
+        android:text="Bạn chưa có tài khoản?"
         android:textSize="17dp"
         app:flow_firstHorizontalBias=".3"
         app:layout_constraintBottom_toBottomOf="parent"

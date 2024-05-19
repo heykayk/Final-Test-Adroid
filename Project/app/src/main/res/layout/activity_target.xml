@@ -43,7 +43,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="Nhập cần nặng"
-        android:inputType="textPassword"
         android:layout_marginTop="8dp"
         android:padding="15dp"
         app:layout_constraintWidth_percent=".8"

@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import androidx.annotation.Nullable;
 
+import com.example.finaltest.model.Food;
 import com.example.finaltest.model.Target;
 import com.example.finaltest.model.User;
 
@@ -115,6 +116,21 @@ public class Database extends SQLiteOpenHelper {
     }
 
     // thao tác với bảng targets
+    public long createTarget(Target newTarget){
+
+        ContentValues values=new ContentValues();
+        values.put("userId", newTarget.getUserId() +"");
+        values.put("height", newTarget.getHeight() +"");
+        values.put("weight", newTarget.getWeight() +"");
+        values.put("weightTarget", newTarget.getWeightTarget() + "");
+        values.put("age", newTarget.getAge()+"");
+        values.put("r", newTarget.getR()+"");
+        values.put("sex", newTarget.getSex());
+        values.put("date", newTarget.getDate());
+
+        SQLiteDatabase sqLiteDatabase=getWritableDatabase();
+        return sqLiteDatabase.insert("Targets",null,values);
+    }
     public Target existsTarget(int userId){
         Target latestTarget = null;
         String whereClause = "userId = ?";
@@ -138,7 +154,70 @@ public class Database extends SQLiteOpenHelper {
         return latestTarget;
     }
 
-
     // thao tác với bảng foods
-//    public
+//    String foodTbl = "CREATE TABLE IF NOT EXISTS foods (" +
+//            "  id INTEGER PRIMARY KEY AUTOINCREMENT," +
+//            "  name TEXT," +
+//            "  calories TEXT," +
+//            "  protein TEXT," +
+//            "  carbs TEXT," +
+//            "  fat TEXT" +
+//            ");";
+//        db.execSQL(foodTbl);
+    public Long createFood(Food food){
+        ContentValues values=new ContentValues();
+        values.put("name", food.getName()+"");
+        values.put("calories", food.getCalories()+"");
+        values.put("protein", food.getProtein()+"");
+        values.put("carbs", food.getCarbs()+"");
+        values.put("fat", food.getFat()+"");
+
+        SQLiteDatabase sqLiteDatabase=getWritableDatabase();
+        return sqLiteDatabase.insert("foods",null,values);
+    }
+
+    public int deleteFood(int id){
+        String whareClause = "id = ?";
+        String[] whereArgs = {Integer.toString(id)};
+        SQLiteDatabase db = getWritableDatabase();
+
+        return db.delete("foods", whareClause, whereArgs);
+    }
+
+    public List<Food> getAllFoods(){
+        List<Food> list = new ArrayList<>();
+
+        SQLiteDatabase st = getReadableDatabase();
+        Cursor rs = st.query("foods", null, null,
+                null, null, null, null);
+
+        while (rs != null && rs.moveToNext()){
+            int id = rs.getInt(0);
+            String name = rs.getString(1);
+            double calories = Double.parseDouble(rs.getString(2));
+            double protein = Double.parseDouble(rs.getString(3));
+            double carbs = Double.parseDouble(rs.getString(4));
+            double fat = Double.parseDouble(rs.getString(5));
+            list.add(new Food(id, name, calories, protein, carbs, fat));
+        }
+        return list;
+    }
+
+    public List<Food> searchByName(String key){
+        List<Food> list = new ArrayList<>();
+        String whereClause = "name like ?";
+        String[] whereArgs = {"%" + key + "%"};
+        SQLiteDatabase st = getReadableDatabase();
+        Cursor rs = st.query("foods", null, whereClause, whereArgs, null, null, null);
+        while (st != null && rs.moveToNext()){
+            int id = rs.getInt(0);
+            String name = rs.getString(1);
+            double calories = Double.parseDouble(rs.getString(2));
+            double protein = Double.parseDouble(rs.getString(3));
+            double carbs = Double.parseDouble(rs.getString(4));
+            double fat = Double.parseDouble(rs.getString(5));
+            list.add(new Food(id, name, calories, protein, carbs, fat));
+        }
+        return list;
+    }
 }
