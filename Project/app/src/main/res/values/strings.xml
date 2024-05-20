@@ -13,4 +13,11 @@
         <item>Nam</item>
         <item>Nữ</item>
     </string-array>
+
+    <string-array name="meal">
+        <item>Bữa sáng</item>
+        <item>Bữa trưa</item>
+        <item>Bữa tối</item>
+        <item>Bữa phụ</item>
+    </string-array>
 </resources>

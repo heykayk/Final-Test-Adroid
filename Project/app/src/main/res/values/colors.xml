@@ -13,6 +13,6 @@
 
     <color name="pink">#FF5CCB</color>
     <color name="blue">#00f0ff</color>
-    <color name="backgroundColor">#FFFCFC</color>
+    <color name="backgroundColor">#F6F5F5</color>
     <color name="textHeading">#008eff</color>
 </resources>

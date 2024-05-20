@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.Nullable;
 
 import com.example.finaltest.model.Food;
+import com.example.finaltest.model.FoodDaily;
 import com.example.finaltest.model.Target;
 import com.example.finaltest.model.User;
 
@@ -16,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Database extends SQLiteOpenHelper {
-    private static final String DATABASE_NAME="finalTest.db";
+    private static final String DATABASE_NAME="finalTest1.db";
     private static int DATABASE_VERSION = 1;
     public Database(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -43,16 +44,18 @@ public class Database extends SQLiteOpenHelper {
                 ");";
         db.execSQL(foodTbl);
 
-        String foodDaliTbl = "CREATE TABLE IF NOT EXISTS DailyFoods (" +
+        String foodDailyTbl = "CREATE TABLE IF NOT EXISTS DailyFoods (" +
                 "  id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "  userId INTEGER," +
                 "  foodId INTEGER," +
+                "  weight TEXT, " +
+                "  totalKCal TEXT," +
                 "  date TEXT," +
                 "  meal TEXT," +
                 "  FOREIGN KEY (userId) REFERENCES users(id)," +
                 "  FOREIGN KEY (foodId) REFERENCES foods(id)" +
                 ");";
-        db.execSQL(foodDaliTbl);
+        db.execSQL(foodDailyTbl);
 
         String targetTbl = "CREATE TABLE IF NOT EXISTS Targets(" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -155,15 +158,6 @@ public class Database extends SQLiteOpenHelper {
     }
 
     // thao tác với bảng foods
-//    String foodTbl = "CREATE TABLE IF NOT EXISTS foods (" +
-//            "  id INTEGER PRIMARY KEY AUTOINCREMENT," +
-//            "  name TEXT," +
-//            "  calories TEXT," +
-//            "  protein TEXT," +
-//            "  carbs TEXT," +
-//            "  fat TEXT" +
-//            ");";
-//        db.execSQL(foodTbl);
     public Long createFood(Food food){
         ContentValues values=new ContentValues();
         values.put("name", food.getName()+"");
@@ -203,6 +197,25 @@ public class Database extends SQLiteOpenHelper {
         return list;
     }
 
+    public Food getFoodById(int foodId){
+        Food food = null;
+        String whereClause = "id = ?";
+        String[] whereArgs = {foodId+""};
+        SQLiteDatabase st = getReadableDatabase();
+        Cursor rs = st.query("foods", null, whereClause, whereArgs, null, null, null);
+
+        while (rs != null && rs.moveToNext()){
+            int id = rs.getInt(0);
+            String name = rs.getString(1);
+            double calories = Double.parseDouble(rs.getString(2));
+            double protein = Double.parseDouble(rs.getString(3));
+            double carbs = Double.parseDouble(rs.getString(4));
+            double fat = Double.parseDouble(rs.getString(5));
+            food =  new Food(id, name, calories, protein, carbs, fat);
+        }
+        return food;
+    }
+
     public List<Food> searchByName(String key){
         List<Food> list = new ArrayList<>();
         String whereClause = "name like ?";
@@ -220,4 +233,40 @@ public class Database extends SQLiteOpenHelper {
         }
         return list;
     }
+    // thao tac voi fooddailys
+    public Long createFood(FoodDaily foodDaily){
+        ContentValues values=new ContentValues();
+        values.put("userId", foodDaily.getUserId()+"");
+        values.put("foodId", foodDaily.getFood().getId()+"");
+        values.put("weight", foodDaily.getWeight()+"");
+        values.put("totalKCal", foodDaily.getTotalKCal()+"");
+        values.put("date", foodDaily.getDate()+"");
+        values.put("meal", foodDaily.getMeal()+"");
+
+        SQLiteDatabase sqLiteDatabase=getWritableDatabase();
+        return sqLiteDatabase.insert("DailyFoods",null,values);
+    }
+
+    public List<FoodDaily> getAllFoodDailyByDate(String currentDate){
+        List<FoodDaily> list = new ArrayList<>();
+        String whereClause = "date like ?";
+        String[] whereArgs = {"%" + currentDate.trim() + "%"};
+        SQLiteDatabase st = getReadableDatabase();
+        Cursor rs = st.query("DailyFoods", null, whereClause, whereArgs, null, null, null);
+
+        while(rs != null && rs.moveToNext()){
+            int id = rs.getInt(0);
+            int userId = rs.getInt(1);
+            Food food = getFoodById(rs.getInt(2));
+            int weight = Integer.parseInt(rs.getString(3));
+            double totalKCal = Double.parseDouble(rs.getString(4));
+            String date = rs.getString(5);
+            String meal = rs.getString(6);
+            list.add(new FoodDaily(id, userId, food,
+                    weight, totalKCal, date, meal));
+        }
+
+        return list;
+    }
+
 }

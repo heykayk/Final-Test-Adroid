@@ -13,6 +13,10 @@ public class Food implements Serializable {
     public Food() {
     }
 
+    public Food(long id) {
+        this.id = id;
+    }
+
     public Food(String name, double calories, double protein, double carbs, double fat) {
         this.name = name;
         this.calories = calories;

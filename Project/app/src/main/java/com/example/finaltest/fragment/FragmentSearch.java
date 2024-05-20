@@ -5,11 +5,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -70,6 +72,14 @@ public class FragmentSearch extends Fragment implements RecycleViewAdapter.ItemL
 
     @Override
     public void onItemClick(View view, int postion) {
+        String date = "";
+
+        FragmentManager fragmentManager = getParentFragmentManager();
+        FragmentHome homeFragment = (FragmentHome) fragmentManager.findFragmentByTag("fragment_home");
+        if (homeFragment != null) {
+            date = homeFragment.getTvDate().getText().toString();
+        }
+
         Food food = adapter.getItem(postion);
         Intent intent = new Intent(getActivity(), DetailFoodActivity.class);
         intent.putExtra("food", food);
