@@ -234,7 +234,7 @@ public class Database extends SQLiteOpenHelper {
         return list;
     }
     // thao tac voi fooddailys
-    public Long createFood(FoodDaily foodDaily){
+    public Long createFoodDaily(FoodDaily foodDaily){
         ContentValues values=new ContentValues();
         values.put("userId", foodDaily.getUserId()+"");
         values.put("foodId", foodDaily.getFood().getId()+"");

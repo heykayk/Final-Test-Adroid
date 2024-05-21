@@ -1,5 +1,7 @@
 package com.example.finaltest.fragment;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +24,8 @@ import java.util.List;
 public class FragmentHome extends Fragment {
     private ImageView imPrevious, imNext;
     private TextView tvCurrentDate, tvDate, tvProtein, tvCarbs, tvFat, tvUsed, tvNeed;
+    private CircularProgressBar progressBar;
+    private CustomProgressBar customProgressBar, customProgressBarCarb,customProgressBarFat;
     private List<FoodDaily> list = new ArrayList<FoodDaily>();
 
     @Nullable
@@ -38,7 +42,16 @@ public class FragmentHome extends Fragment {
         draw(view);
     }
 
+    private void setCurrentDate(String date){
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("date", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("pickDate", date);
+        editor.apply();
+    }
+
     private void initView(View view){
+        setCurrentDate("11/05/2024");
+
         imPrevious = view.findViewById(R.id.ivPrevious);
         imNext = view.findViewById(R.id.ivNext);
         tvCurrentDate = view.findViewById(R.id.tvCurrentDate);
@@ -48,20 +61,17 @@ public class FragmentHome extends Fragment {
         tvFat = view.findViewById(R.id.tvFat);
         tvUsed = view.findViewById(R.id.tvUsed);
         tvNeed = view.findViewById(R.id.tvNeed);
+        progressBar = view.findViewById(R.id.circularProgressBar);
+        customProgressBar = view.findViewById(R.id.progressBarProtein);
+        customProgressBarCarb = view.findViewById(R.id.progressBarCarb);
+        customProgressBarFat = view.findViewById(R.id.progressBarFat);
     }
 
     private void draw(View view){
-        CircularProgressBar progressBar = view.findViewById(R.id.circularProgressBar);
-        progressBar.setPercentage(70f);  // Set 70% completion
-
-        CustomProgressBar customProgressBar = view.findViewById(R.id.progressBarProtein);
-        customProgressBar.setEnergyLevel(75);
-
-        CustomProgressBar customProgressBarCarb = view.findViewById(R.id.progressBarCarb);
+        progressBar.setPercentage(20f);  // Set 70% completion
+        customProgressBar.setEnergyLevel(50);
         customProgressBarCarb.setEnergyLevel(75);
-
-        CustomProgressBar customProgressBarFat = view.findViewById(R.id.progressBarFat);
-        customProgressBarFat.setEnergyLevel(75);
+        customProgressBarFat.setEnergyLevel(60);
     }
 
     private List<Float> caculateEnergy(){
@@ -75,9 +85,5 @@ public class FragmentHome extends Fragment {
         energys.add(fat);
 
         return energys;
-    }
-
-    public TextView getTvDate() {
-        return tvDate;
     }
 }

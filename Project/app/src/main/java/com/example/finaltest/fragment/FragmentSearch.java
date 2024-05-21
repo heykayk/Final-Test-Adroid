@@ -1,6 +1,8 @@
 package com.example.finaltest.fragment;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -72,19 +74,13 @@ public class FragmentSearch extends Fragment implements RecycleViewAdapter.ItemL
 
     @Override
     public void onItemClick(View view, int postion) {
-        String date = "";
-
-        FragmentManager fragmentManager = getParentFragmentManager();
-        FragmentHome homeFragment = (FragmentHome) fragmentManager.findFragmentByTag("fragment_home");
-        if (homeFragment != null) {
-            date = homeFragment.getTvDate().getText().toString();
-        }
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("date", Context.MODE_PRIVATE);
+        String date = sharedPreferences.getString("currentDate", "");
 
         Food food = adapter.getItem(postion);
         Intent intent = new Intent(getActivity(), DetailFoodActivity.class);
         intent.putExtra("food", food);
         startActivity(intent);
-
     }
 
     @Override

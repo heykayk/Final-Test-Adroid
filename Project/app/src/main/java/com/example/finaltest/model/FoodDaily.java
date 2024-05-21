@@ -65,7 +65,7 @@ public class FoodDaily implements Serializable {
     }
 
     public double getTotalKCal() {
-        return this.getWeight() * this.getFood().getCalories();
+        return this.getWeight() * this.getFood().getCalories() / 100;
     }
 
     public void setTotalKCal(double totalKCal) {

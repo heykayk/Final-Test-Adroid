@@ -3,17 +3,25 @@ package com.example.finaltest;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.finaltest.dal.Database;
 import com.example.finaltest.model.Food;
+import com.example.finaltest.model.FoodDaily;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.LegendEntry;
@@ -22,26 +30,36 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.PercentFormatter;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-public class DetailFoodActivity extends AppCompatActivity {
+public class DetailFoodActivity extends AppCompatActivity implements View.OnClickListener{
     private EditText edWeight;
     private TextView tvAddmeal, tvDate, tvName;
     private Spinner spMeal;
     private PieChart pieChart;
     private Food food;
+    private Button btnAddMeal;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_food);
 
         initView();
+        btnAddMeal.setOnClickListener(this);
+        edWeight.setOnClickListener(this);
     }
 
     private void initView(){
         Intent intent=getIntent();
-        food = (Food)intent.getSerializableExtra("food");
+        this.food = (Food)intent.getSerializableExtra("food");
 
         tvName = findViewById(R.id.tvName);
         edWeight = findViewById(R.id.edWeight);
@@ -49,6 +67,7 @@ public class DetailFoodActivity extends AppCompatActivity {
         tvAddmeal = findViewById(R.id.tvAddmeal);
         tvDate = findViewById(R.id.tvDate);
         pieChart = findViewById(R.id.pieChart);
+        btnAddMeal = findViewById(R.id.btnAddMeal);
 
         spMeal.setAdapter(new ArrayAdapter<String>(this,R.layout.item_spinner,
                 getResources().getStringArray(R.array.meal)));
@@ -66,8 +85,90 @@ public class DetailFoodActivity extends AppCompatActivity {
                 // Xử lý sự kiện khi không có mục nào được chọn từ Spinner
             }
         });
+        setUpdate();
         setupPieChart();
-        loadPieChartData();
+        loadPieChartData(this.food);
+        setTextChangeEditText();
+    }
+
+    private void setTextChangeEditText(){
+        edWeight.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String weightString = edWeight.getText().toString();
+                if (weightString.isEmpty() || weightString == null){
+                    loadPieChartData(food);
+                    return;
+                }
+                int weight = 0;
+                try {
+                    weight = Integer.parseInt(weightString);
+                }catch (Exception e){
+                    Toast.makeText(getApplicationContext(), "Khối lượng vui lòng nhập số!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                double scale = weight / 100;
+
+                Food newFood = new Food(food.getName(),
+                        Double.parseDouble(String.format(".1d", food.getCalories() * scale)),
+                        Double.parseDouble(String.format(".1d", food.getProtein() * scale)),
+                        Double.parseDouble(String.format(".1d", food.getCarbs() * scale)),
+                        Double.parseDouble(String.format(".1d", food.getFat() * scale))
+                );
+                loadPieChartData(newFood);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+    }
+
+    private void setUpdate(){
+        try {
+            SharedPreferences sharedPreferences = getSharedPreferences("date", MODE_PRIVATE);
+            String date = sharedPreferences.getString("pickDate", "");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+
+            Date pickDate = simpleDateFormat.parse(date.trim());
+            Date currDate = new Date();
+
+            Calendar c1 = Calendar.getInstance();
+            Calendar c2 = Calendar.getInstance();
+
+            c1.setTime(pickDate);
+            c2.setTime(currDate);
+
+            long noDay = (c1.getTime().getTime() - c2.getTime().getTime()) / (24 * 3600 * 1000);
+
+            String result = "";
+            if(noDay < 0){
+                if(Math.abs(noDay) == 1){
+                    result = "Hôm qua - ";
+                } else {
+                    result = Math.abs(noDay) + " ngày trước - ";
+                }
+            } else if (noDay == 0){
+                result = "Hôm nay - ";
+            }else {
+                if (noDay == 1){
+                    result = "Ngày mai - ";
+                } else {
+                    result = "Thời gian tới - ";
+                }
+            }
+            result = result + "Ngày " + date;
+            tvDate.setText(result);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void setupPieChart() {
@@ -91,16 +192,13 @@ public class DetailFoodActivity extends AppCompatActivity {
         legend.setTextColor(Color.BLACK);
     }
 
-    private void loadPieChartData() {
+    private void loadPieChartData(Food food) {
         ArrayList<PieEntry> entries = new ArrayList<>();
         // Tính lại phần trăm của từng phần
         float total = (float)(food.getCarbs() + food.getProtein() + food.getFat());
         entries.add(new PieEntry(((float) food.getCarbs() / total) * 100f, (Object) null));
         entries.add(new PieEntry(((float) food.getProtein() / total) * 100f, (Object) null));
         entries.add(new PieEntry(((float) food.getFat() / total) * 100f, (Object) null));
-
-        // Tạo một mảng riêng lưu trữ các nhãn để sử dụng cho chú thích
-        String[] labels = {"USA", "China", "UK"};
 
         // Mảng màu mới
         int[] colors = {
@@ -150,5 +248,39 @@ public class DetailFoodActivity extends AppCompatActivity {
             entries.add(entry);
         }
         return entries;
+    }
+
+    @Override
+    public void onClick(View view) {
+
+        if(view  == btnAddMeal){
+            String weightString = edWeight.getText().toString();
+            String meal = spMeal.getSelectedItem().toString().toString();
+            if (weightString.isEmpty() || weightString == null){
+                Toast.makeText(this, "Vui lòng điền khối lượng", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            int weight = 0;
+            try {
+                weight = Integer.parseInt(weightString);
+            }catch (Exception e){
+                Toast.makeText(this, "Khối lượng vui lòng nhập số!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            SharedPreferences sharedPreferences = getSharedPreferences("date", MODE_PRIVATE);
+            String date = sharedPreferences.getString("pickDate", "");
+
+            sharedPreferences = getSharedPreferences("user", MODE_PRIVATE);
+            int userId = sharedPreferences.getInt("userId", 0);
+            FoodDaily foodDaily = new FoodDaily(
+                    userId, food,
+                    weight, date,
+                    meal
+            );
+            Database db = new Database(this);
+            long tmp = db.createFoodDaily(foodDaily);
+            finish();
+        }
     }
 }
