@@ -87,4 +87,17 @@ public class FoodDaily implements Serializable {
     public void setMeal(String meal) {
         this.meal = meal;
     }
+
+    @Override
+    public String toString() {
+        return "FoodDaily{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", food=" + food +
+                ", weight=" + weight +
+                ", totalKCal=" + totalKCal +
+                ", date='" + date + '\'' +
+                ", meal='" + meal + '\'' +
+                '}';
+    }
 }

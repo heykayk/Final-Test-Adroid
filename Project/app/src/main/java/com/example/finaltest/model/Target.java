@@ -109,4 +109,19 @@ public class Target implements Serializable {
     public void setDate(String date) {
         this.date = date;
     }
+
+    @Override
+    public String toString() {
+        return "Target{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", height=" + height +
+                ", weight=" + weight +
+                ", weightTarget=" + weightTarget +
+                ", age=" + age +
+                ", r=" + r +
+                ", sex=" + sex +
+                ", date='" + date + '\'' +
+                '}';
+    }
 }

@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class DetailFoodActivity extends AppCompatActivity implements View.OnClickListener{
@@ -100,7 +101,7 @@ public class DetailFoodActivity extends AppCompatActivity implements View.OnClic
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                String weightString = edWeight.getText().toString();
+                String weightString = charSequence.toString();
                 if (weightString.isEmpty() || weightString == null){
                     loadPieChartData(food);
                     return;
@@ -110,17 +111,20 @@ public class DetailFoodActivity extends AppCompatActivity implements View.OnClic
                     weight = Integer.parseInt(weightString);
                 }catch (Exception e){
                     Toast.makeText(getApplicationContext(), "Khối lượng vui lòng nhập số!", Toast.LENGTH_SHORT).show();
+                    loadPieChartData(food);
                     return;
                 }
 
-                double scale = weight / 100;
+
+                System.out.println(weight);
 
                 Food newFood = new Food(food.getName(),
-                        Double.parseDouble(String.format(".1d", food.getCalories() * scale)),
-                        Double.parseDouble(String.format(".1d", food.getProtein() * scale)),
-                        Double.parseDouble(String.format(".1d", food.getCarbs() * scale)),
-                        Double.parseDouble(String.format(".1d", food.getFat() * scale))
+                        Double.parseDouble(String.valueOf(Double.parseDouble(String.format(Locale.US, "%.1f", food.getCalories() * (double) weight / 100)))),
+                        Double.parseDouble(String.valueOf(Double.parseDouble(String.format(Locale.US, "%.1f", food.getProtein() * (double) weight / 100)))),
+                        Double.parseDouble(String.valueOf(Double.parseDouble(String.format(Locale.US, "%.1f", food.getCarbs() * (double) weight / 100)))),
+                        Double.parseDouble(String.valueOf(Double.parseDouble(String.format(Locale.US, "%.1f", food.getFat() * (double) weight / 100))))
                 );
+                System.out.println(newFood);
                 loadPieChartData(newFood);
             }
 
@@ -177,7 +181,6 @@ public class DetailFoodActivity extends AppCompatActivity implements View.OnClic
         pieChart.setUsePercentValues(true);
         pieChart.setEntryLabelTextSize(12f);
         pieChart.setEntryLabelColor(Color.BLACK);
-        pieChart.setCenterText((int)food.getCalories() + " KCal");
         pieChart.setCenterTextSize(26f);
         pieChart.getDescription().setEnabled(false);
 
@@ -192,10 +195,12 @@ public class DetailFoodActivity extends AppCompatActivity implements View.OnClic
         legend.setTextColor(Color.BLACK);
     }
 
-    private void loadPieChartData(Food food) {
+    private void loadPieChartData(Food newFood) {
         ArrayList<PieEntry> entries = new ArrayList<>();
+
+        pieChart.setCenterText((int)newFood.getCalories() + " KCal");
         // Tính lại phần trăm của từng phần
-        float total = (float)(food.getCarbs() + food.getProtein() + food.getFat());
+        float total = (float)(newFood.getCarbs() + newFood.getProtein() + newFood.getFat());
         entries.add(new PieEntry(((float) food.getCarbs() / total) * 100f, (Object) null));
         entries.add(new PieEntry(((float) food.getProtein() / total) * 100f, (Object) null));
         entries.add(new PieEntry(((float) food.getFat() / total) * 100f, (Object) null));
@@ -219,14 +224,14 @@ public class DetailFoodActivity extends AppCompatActivity implements View.OnClic
         pieChart.invalidate(); // Làm mới biểu đồ
 
         // Thiết lập chú thích
-        setLegendLabels();
+        setLegendLabels(newFood);
     }
 
     // Phương thức để thiết lập chú thích
-    private void setLegendLabels() {
-        String[] labels = {"Carbs" + " (" + food.getCarbs()+ "g)"
-                , "Protein"  + " (" + food.getProtein()+ "g)"
-                , "Fat"  + " (" + food.getFat()+ "g)"} ;
+    private void setLegendLabels(Food newFood) {
+        String[] labels = {"Carbs" + " (" + newFood.getCarbs()+ "g)"
+                , "Protein"  + " (" + newFood.getProtein()+ "g)"
+                , "Fat"  + " (" + newFood.getFat()+ "g)"} ;
         Legend legend = pieChart.getLegend();
         if (legend != null) {
             legend.setCustom(getLegendLabels(labels));

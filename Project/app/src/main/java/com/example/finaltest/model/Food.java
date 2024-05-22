@@ -81,4 +81,16 @@ public class Food implements Serializable {
     public void setFat(double fat) {
         this.fat = fat;
     }
+
+    @Override
+    public String toString() {
+        return "Food{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", calories=" + calories +
+                ", protein=" + protein +
+                ", carbs=" + carbs +
+                ", fat=" + fat +
+                '}';
+    }
 }

@@ -14,12 +14,15 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.finaltest.R;
+import com.example.finaltest.dal.Database;
 import com.example.finaltest.model.CircularProgressBar;
 import com.example.finaltest.model.CustomProgressBar;
 import com.example.finaltest.model.FoodDaily;
+import com.example.finaltest.model.Target;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class FragmentHome extends Fragment {
     private ImageView imPrevious, imNext;
@@ -27,6 +30,7 @@ public class FragmentHome extends Fragment {
     private CircularProgressBar progressBar;
     private CustomProgressBar customProgressBar, customProgressBarCarb,customProgressBarFat;
     private List<FoodDaily> list = new ArrayList<FoodDaily>();
+    private Target target;
 
     @Nullable
     @Override
@@ -39,7 +43,7 @@ public class FragmentHome extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         initView(view);
-        draw(view);
+        draw(this.list);
     }
 
     private void setCurrentDate(String date){
@@ -50,7 +54,7 @@ public class FragmentHome extends Fragment {
     }
 
     private void initView(View view){
-        setCurrentDate("11/05/2024");
+        setCurrentDate("22/05/2024");
 
         imPrevious = view.findViewById(R.id.ivPrevious);
         imNext = view.findViewById(R.id.ivNext);
@@ -65,25 +69,60 @@ public class FragmentHome extends Fragment {
         customProgressBar = view.findViewById(R.id.progressBarProtein);
         customProgressBarCarb = view.findViewById(R.id.progressBarCarb);
         customProgressBarFat = view.findViewById(R.id.progressBarFat);
+
+        Database db = new Database(getContext());
+        this.list = db.getAllFoodDailyByDate("22/05/2024");
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences(
+                "user", Context.MODE_PRIVATE);
+        int userId = sharedPreferences.getInt("userId", 0);
+        target = db.existsTarget(userId);
     }
 
-    private void draw(View view){
-        progressBar.setPercentage(20f);  // Set 70% completion
+    private void draw(List<FoodDaily> list){
+        List<Double> listEnergies = caculateEnergy(list);
+        int totalEnergy = caculateBMI(this.target);
+
+        int totalFat = totalEnergy * 10 / (3 * 9);
+        int totalProtein = (totalEnergy - totalFat * 9)/ ( 2 * 4);
+        int totalCarbs = (totalEnergy - totalFat * 9)/ ( 2 * 4);
+
+        progressBar.setPercentage(20f);
         customProgressBar.setEnergyLevel(50);
         customProgressBarCarb.setEnergyLevel(75);
         customProgressBarFat.setEnergyLevel(60);
     }
 
-    private List<Float> caculateEnergy(){
-        List<Float> energys = new ArrayList<>();
-        float protein = 0, carbs = 0, fat = 0;
-        for(FoodDaily foodDaily:this.list){
-//            protein += (float) foodDaily.get
-        }
-        energys.add(protein);
-        energys.add(carbs);
-        energys.add(fat);
+    private int caculateBMI(Target target){
+        double bmi = 0d;
 
-        return energys;
+        if(target.getSex() == 1){
+            bmi = 66 + 13.7 * target.getWeight() + 5 * target.getHeight() - 6.8 * target.getAge();
+        } else {
+            bmi = 655 + 9.6 * target.getWeight() + 1.8 * target.getHeight() - 4.7 * target.getAge();
+        }
+        return (int)bmi;
+    }
+
+    private List<Double> caculateEnergy(List<FoodDaily> foodDailies){
+        List<Double> energies = new ArrayList<>();
+        Double protein = 0d, carbs = 0d, fat = 0d;
+        for(FoodDaily foodDaily:foodDailies){
+            protein = Double.valueOf(String.valueOf(Double.parseDouble(String.format(String.format(Locale.US, "%.1f",
+                    foodDaily.getFood().getProtein() * (double) foodDaily.getWeight() / 100
+            )))));
+
+            carbs = Double.valueOf(String.valueOf(Double.parseDouble(String.format(String.format(Locale.US, "%.1f",
+                            foodDaily.getFood().getCarbs() * (double) foodDaily.getWeight() / 100
+            )))));
+
+            fat = Double.valueOf(String.valueOf(Double.parseDouble(String.format(String.format(Locale.US, "%.1f",
+                    foodDaily.getFood().getFat() * (double) foodDaily.getWeight() / 100
+            )))));
+        }
+        energies.add(protein);
+        energies.add(carbs);
+        energies.add(fat);
+
+        return energies;
     }
 }
