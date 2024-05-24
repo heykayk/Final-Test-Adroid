@@ -1,9 +1,12 @@
 package com.example.finaltest;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -16,6 +19,11 @@ import android.widget.Toast;
 import com.example.finaltest.dal.Database;
 import com.example.finaltest.model.Target;
 import com.example.finaltest.model.User;
+
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 public class LoginActivity extends AppCompatActivity {
     private EditText txtUsername, txtPassword;
@@ -68,6 +76,16 @@ public class LoginActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("userId", user.getId());
         editor.putString("fullName", user.getFullname());
+        editor.apply();
+
+        sharedPreferences = getSharedPreferences("date", MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+        Date currentDate = new Date();
+
+        // Định dạng ngày thành chuỗi "dd//MM//yyyy"
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        String date = formatter.format(currentDate);
+        editor.putString("pickDate", date);
         editor.apply();
 
         Target target = db.existsTarget(user.getId());

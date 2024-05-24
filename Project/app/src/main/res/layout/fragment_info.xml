@@ -12,16 +12,27 @@
         android:layout_height="80dp"
         android:background="@color/green"
         android:id="@+id/linearLayoutSearch"
-        android:orientation="vertical">
+        android:orientation="horizontal"
+        android:weightSum="4">
 
         <TextView
             android:id="@+id/tvName"
-            android:layout_width="match_parent"
+            android:paddingLeft="20dp"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:text="Xin chào, Ngô Minh Hiếu"
+            android:layout_weight="1"
             android:textSize="26dp"
             android:textColor="@color/black"
-            android:gravity="center"/>
+            android:gravity="center_vertical"/>
+
+        <ImageView
+            android:id="@+id/imLogout"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/logout"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="3"/>
     </LinearLayout>
 
     <TextView
@@ -220,4 +231,13 @@
         </LinearLayout>
 
     </LinearLayout>
+
+    <Button
+        android:id="@+id/updateTarget"
+        android:layout_marginTop="30dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Sửa cân nặng"
+        android:layout_gravity="center"/>
 </LinearLayout>

@@ -3,7 +3,8 @@ package com.example.finaltest;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
-import android.content.Context;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -32,35 +33,34 @@ import com.github.mikephil.charting.formatter.PercentFormatter;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
-public class DetailFoodActivity extends AppCompatActivity implements View.OnClickListener{
+public class UpdateMeal extends AppCompatActivity implements View.OnClickListener {
     private EditText edWeight;
     private TextView tvAddmeal, tvDate, tvName;
     private Spinner spMeal;
     private PieChart pieChart;
+    private Button btnUpdate, btnDelete;
     private Food food;
-    private Button btnAddMeal;
+    private FoodDaily foodDaily;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detail_food);
+        setContentView(R.layout.activity_update_meal);
 
         initView();
-        btnAddMeal.setOnClickListener(this);
+        btnUpdate.setOnClickListener(this);
+        btnDelete.setOnClickListener(this);
         edWeight.setOnClickListener(this);
     }
 
     private void initView(){
         Intent intent=getIntent();
-        this.food = (Food)intent.getSerializableExtra("food");
+        this.foodDaily = (FoodDaily) intent.getSerializableExtra("foodDaily");
+        this.food = foodDaily.getFood();
 
         tvName = findViewById(R.id.tvName);
         edWeight = findViewById(R.id.edWeight);
@@ -68,11 +68,31 @@ public class DetailFoodActivity extends AppCompatActivity implements View.OnClic
         tvAddmeal = findViewById(R.id.tvAddmeal);
         tvDate = findViewById(R.id.tvDate);
         pieChart = findViewById(R.id.pieChart);
-        btnAddMeal = findViewById(R.id.btnAddMeal);
+        btnUpdate = findViewById(R.id.btnUpdate);
+        btnDelete = findViewById(R.id.btnDelete);
 
         spMeal.setAdapter(new ArrayAdapter<String>(this,R.layout.item_spinner,
                 getResources().getStringArray(R.array.meal)));
         tvName.setText(food.getName());
+        edWeight.setText(foodDaily.getWeight()+"");
+
+        double weight = foodDaily.getWeight();
+        Food newFood = new Food(food.getName(),
+                Double.parseDouble(String.valueOf(Double.parseDouble(String.format(Locale.US, "%.1f", food.getCalories() * (double) weight / 100)))),
+                Double.parseDouble(String.valueOf(Double.parseDouble(String.format(Locale.US, "%.1f", food.getProtein() * (double) weight / 100)))),
+                Double.parseDouble(String.valueOf(Double.parseDouble(String.format(Locale.US, "%.1f", food.getCarbs() * (double) weight / 100)))),
+                Double.parseDouble(String.valueOf(Double.parseDouble(String.format(Locale.US, "%.1f", food.getFat() * (double) weight / 100))))
+        );
+        loadPieChartData(newFood);
+
+        int n=0;
+        for(int i=0; i<spMeal.getCount();i++){
+            if(spMeal.getItemAtPosition(i).toString().equalsIgnoreCase(foodDaily.getMeal())){
+                n=i;
+                break;
+            }
+        }
+        spMeal.setSelection(n);
 
         spMeal.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -86,9 +106,11 @@ public class DetailFoodActivity extends AppCompatActivity implements View.OnClic
                 // Xử lý sự kiện khi không có mục nào được chọn từ Spinner
             }
         });
+
+
+
         setUpdate();
         setupPieChart();
-        loadPieChartData(this.food);
         setTextChangeEditText();
     }
 
@@ -116,15 +138,12 @@ public class DetailFoodActivity extends AppCompatActivity implements View.OnClic
                 }
 
 
-                System.out.println(weight);
-
                 Food newFood = new Food(food.getName(),
                         Double.parseDouble(String.valueOf(Double.parseDouble(String.format(Locale.US, "%.1f", food.getCalories() * (double) weight / 100)))),
                         Double.parseDouble(String.valueOf(Double.parseDouble(String.format(Locale.US, "%.1f", food.getProtein() * (double) weight / 100)))),
                         Double.parseDouble(String.valueOf(Double.parseDouble(String.format(Locale.US, "%.1f", food.getCarbs() * (double) weight / 100)))),
                         Double.parseDouble(String.valueOf(Double.parseDouble(String.format(Locale.US, "%.1f", food.getFat() * (double) weight / 100))))
                 );
-                System.out.println(newFood);
                 loadPieChartData(newFood);
             }
 
@@ -137,8 +156,7 @@ public class DetailFoodActivity extends AppCompatActivity implements View.OnClic
 
     private void setUpdate(){
         try {
-            SharedPreferences sharedPreferences = getSharedPreferences("date", MODE_PRIVATE);
-            String date = sharedPreferences.getString("pickDate", "");
+            String date = foodDaily.getDate().trim();
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
             Date pickDate = simpleDateFormat.parse(date.trim());
@@ -256,8 +274,7 @@ public class DetailFoodActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onClick(View view) {
-
-        if(view  == btnAddMeal){
+        if (view == btnUpdate){
             String weightString = edWeight.getText().toString();
             String meal = spMeal.getSelectedItem().toString().toString();
             if (weightString.isEmpty() || weightString == null){
@@ -272,19 +289,36 @@ public class DetailFoodActivity extends AppCompatActivity implements View.OnClic
                 return;
             }
 
-            SharedPreferences sharedPreferences = getSharedPreferences("date", MODE_PRIVATE);
-            String date = sharedPreferences.getString("pickDate", "");
-
-            sharedPreferences = getSharedPreferences("user", MODE_PRIVATE);
-            int userId = sharedPreferences.getInt("userId", 0);
-            FoodDaily foodDaily = new FoodDaily(
-                    userId, food,
-                    weight, date,
+            FoodDaily newFoodDaily = new FoodDaily(this.foodDaily.getId(),
+                    this.foodDaily.getUserId(), food,
+                    weight,this.foodDaily.getTotalKCal(), this.foodDaily.getDate(),
                     meal
             );
             Database db = new Database(this);
-            long tmp = db.createFoodDaily(foodDaily);
+            long tmp = db.updateFoodDaily(newFoodDaily);
             finish();
+        }
+
+        if (view == btnDelete){
+            AlertDialog.Builder builder=new AlertDialog.Builder(view.getContext());
+            builder.setTitle(("Thong bao xoa"));
+            builder.setMessage("Ban co chac chan muon xoa "+foodDaily.getFood().getName()+" nay khong?");
+            builder.setPositiveButton("Co", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Database db=new Database(getApplicationContext());
+                    db.deleteFoodDaily(foodDaily.getId());
+                    finish();
+                }
+            });
+            builder.setNegativeButton("Khong", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                }
+            });
+            AlertDialog dialog=builder.create();
+            dialog.show();
         }
     }
 }

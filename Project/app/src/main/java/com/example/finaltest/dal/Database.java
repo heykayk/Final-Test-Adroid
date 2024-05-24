@@ -134,6 +134,23 @@ public class Database extends SQLiteOpenHelper {
         SQLiteDatabase sqLiteDatabase=getWritableDatabase();
         return sqLiteDatabase.insert("Targets",null,values);
     }
+
+    public int updateTarget(Target newTarget){
+        ContentValues values=new ContentValues();
+        values.put("userId", newTarget.getUserId() +"");
+        values.put("height", newTarget.getHeight() +"");
+        values.put("weight", newTarget.getWeight() +"");
+        values.put("weightTarget", newTarget.getWeightTarget() + "");
+        values.put("age", newTarget.getAge()+"");
+        values.put("r", newTarget.getR()+"");
+        values.put("sex", newTarget.getSex());
+        values.put("date", newTarget.getDate());
+        SQLiteDatabase db = getWritableDatabase();
+        String whareClause = "id = ?";
+        String[] whereArgs = {Integer.toString(newTarget.getId())};
+
+        return db.update("Targets", values, whareClause, whereArgs);
+    }
     public Target existsTarget(int userId){
         Target latestTarget = null;
         String whereClause = "userId = ?";
@@ -247,10 +264,31 @@ public class Database extends SQLiteOpenHelper {
         return sqLiteDatabase.insert("DailyFoods",null,values);
     }
 
-    public List<FoodDaily> getAllFoodDailyByDate(String currentDate){
+    public int updateFoodDaily(FoodDaily foodDaily){
+        ContentValues values=new ContentValues();
+        values.put("userId", foodDaily.getUserId()+"");
+        values.put("foodId", foodDaily.getFood().getId()+"");
+        values.put("weight", foodDaily.getWeight()+"");
+        values.put("totalKCal", foodDaily.getTotalKCal()+"");
+        values.put("date", foodDaily.getDate()+"");
+        values.put("meal", foodDaily.getMeal()+"");
+        SQLiteDatabase sqLiteDatabase=getWritableDatabase();
+        String whereClause = "id= ?";
+        String[] whereArgs = {Integer.toString(foodDaily.getId())};
+        return sqLiteDatabase.update("DailyFoods",values,whereClause,whereArgs);
+    }
+
+    public int deleteFoodDaily(int id){
+        String whereClause = "id= ?";
+        String[] whereArgs = {Integer.toString(id)};
+        SQLiteDatabase sqLiteDatabase=getWritableDatabase();
+        return sqLiteDatabase.delete("DailyFoods",whereClause,whereArgs);
+    }
+
+    public List<FoodDaily> getAllFoodDailyByDate(String currentDate, int idUser){
         List<FoodDaily> list = new ArrayList<>();
-        String whereClause = "date like ?";
-        String[] whereArgs = {"%" + currentDate.trim() + "%"};
+        String whereClause = "userId = ? AND date like ?";
+        String[] whereArgs = {idUser + "", "%" + currentDate.trim() + "%"};
         SQLiteDatabase st = getReadableDatabase();
         Cursor rs = st.query("DailyFoods", null, whereClause, whereArgs, null, null, null);
 

@@ -16,6 +16,9 @@ import com.example.finaltest.dal.Database;
 import com.example.finaltest.model.Target;
 import com.example.finaltest.model.User;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class RegistationActivity extends AppCompatActivity {
     private EditText txtName, txtFullname, txtPassword;
     private TextView txtSingIn;
@@ -74,6 +77,15 @@ public class RegistationActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("userId", user.getId());
         editor.putString("fullName", user.getFullname());
+        editor.apply();
+
+        sharedPreferences = getSharedPreferences("date", MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+        Date currentDate = new Date();
+
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        String date = formatter.format(currentDate);
+        editor.putString("pickDate", date);
         editor.apply();
 
         Target target = db.existsTarget(user.getId());
